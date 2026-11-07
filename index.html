@@ -1,256 +1,85 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0">
 
-<title>Tic Tac Toe Game</title>
+    <title>3D Highway Car Racing</title>
 
-<style>
-
-* {
-    box-sizing: border-box;
-    margin: 0;
-    padding: 0;
-}
-
-body {
-    font-family: Arial, sans-serif;
-    background: linear-gradient(135deg, #141e30, #243b55);
-    min-height: 100vh;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-}
-
-.game {
-    background: white;
-    padding: 30px;
-    border-radius: 20px;
-    text-align: center;
-    width: 90%;
-    max-width: 380px;
-}
-
-h1 {
-    color: #243b55;
-    margin-bottom: 20px;
-    font-size: 32px;
-}
-
-#status {
-    margin-bottom: 20px;
-    color: #333;
-}
-
-.board {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 10px;
-}
-
-.cell {
-    height: 95px;
-    background: #dce6f1;
-    border: none;
-    border-radius: 12px;
-    font-size: 40px;
-    font-weight: bold;
-    cursor: pointer;
-    color: #243b55;
-}
-
-.cell:disabled {
-    cursor: not-allowed;
-    opacity: 1;
-}
-
-#score {
-    margin: 25px 0;
-    font-size: 22px;
-}
-
-#restart {
-    background: #243b55;
-    color: white;
-    border: none;
-    padding: 14px 25px;
-    border-radius: 10px;
-    font-size: 17px;
-    cursor: pointer;
-}
-
-#restart:hover {
-    background: #41658d;
-}
-
-</style>
+    <link rel="stylesheet" href="style.css">
 </head>
 
 <body>
 
-<div class="game">
+<div class="game-container">
 
-    <h1>Tic Tac Toe</h1>
+    <header>
+        <h1>🏎️ HIGHWAY RACER</h1>
+        <p>Ultimate 3D Racing Challenge</p>
+    </header>
 
-    <h2 id="status">Player X's Turn</h2>
+    <div class="score-board">
+        <div>
+            <span>SCORE</span>
+            <h2 id="score">0</h2>
+        </div>
 
-    <div class="board">
+        <div>
+            <span>BEST</span>
+            <h2 id="best">0</h2>
+        </div>
 
-        <button class="cell" type="button"></button>
-        <button class="cell" type="button"></button>
-        <button class="cell" type="button"></button>
+        <div>
+            <span>SPEED</span>
+            <h2 id="speed">0</h2>
+        </div>
+    </div>
 
-        <button class="cell" type="button"></button>
-        <button class="cell" type="button"></button>
-        <button class="cell" type="button"></button>
+    <div class="canvas-wrapper">
 
-        <button class="cell" type="button"></button>
-        <button class="cell" type="button"></button>
-        <button class="cell" type="button"></button>
+        <canvas id="gameCanvas"
+                width="450"
+                height="700">
+        </canvas>
+
+        <div id="startScreen" class="overlay">
+            <h2>🏁 HIGHWAY RACER</h2>
+            <p>Avoid traffic and make your high score!</p>
+            <button id="startBtn">START GAME</button>
+        </div>
+
+        <div id="gameOverScreen" class="overlay hidden">
+            <h2>💥 GAME OVER</h2>
+            <p>Your Score: <span id="finalScore">0</span></p>
+            <button id="restartBtn">PLAY AGAIN</button>
+        </div>
+
+        <div id="pauseScreen" class="overlay hidden">
+            <h2>GAME PAUSED</h2>
+            <button id="resumeBtn">RESUME</button>
+        </div>
 
     </div>
 
-    <h3 id="score">X: 0 | O: 0</h3>
+    <div class="controls">
 
-    <button id="restart" type="button">
-        Restart Game
-    </button>
+        <button id="leftBtn" class="control-btn">⬅</button>
+
+        <button id="pauseBtn" class="pause-btn">Ⅱ</button>
+
+        <button id="rightBtn" class="control-btn">➡</button>
+
+    </div>
+
+    <p class="instructions">
+        PC: Use ← → or A / D keys<br>
+        Mobile: Use left and right buttons
+    </p>
 
 </div>
 
-<script>
-
-const cells = document.querySelectorAll(".cell");
-
-const statusText = document.getElementById("status");
-
-const scoreText = document.getElementById("score");
-
-const restart = document.getElementById("restart");
-
-let currentPlayer = "X";
-
-let board = ["", "", "", "", "", "", "", "", ""];
-
-let gameActive = true;
-
-let scoreX = 0;
-let scoreO = 0;
-
-const winPatterns = [
-    [0,1,2],
-    [3,4,5],
-    [6,7,8],
-    [0,3,6],
-    [1,4,7],
-    [2,5,8],
-    [0,4,8],
-    [2,4,6]
-];
-
-// Cell Click Function
-
-cells.forEach((cell, index) => {
-
-    cell.addEventListener("click", function() {
-
-        if (board[index] !== "" || !gameActive) {
-            return;
-        }
-
-        board[index] = currentPlayer;
-
-        cell.textContent = currentPlayer;
-
-        cell.disabled = true;
-
-        checkWinner();
-
-    });
-
-});
-
-// Winner Check Function
-
-function checkWinner() {
-
-    for (let pattern of winPatterns) {
-
-        let [a, b, c] = pattern;
-
-        if (
-            board[a] !== "" &&
-            board[a] === board[b] &&
-            board[b] === board[c]
-        ) {
-
-            statusText.textContent =
-                "Player " + currentPlayer + " Wins! 🎉";
-
-            if (currentPlayer === "X") {
-                scoreX++;
-            } else {
-                scoreO++;
-            }
-
-            gameActive = false;
-
-            updateScore();
-
-            return;
-        }
-    }
-
-    if (!board.includes("")) {
-
-        statusText.textContent = "Match Draw!";
-
-        gameActive = false;
-
-        return;
-    }
-
-    currentPlayer =
-        currentPlayer === "X" ? "O" : "X";
-
-    statusText.textContent =
-        "Player " + currentPlayer + "'s Turn";
-
-}
-
-// Score Update
-
-function updateScore() {
-
-    scoreText.textContent =
-        "X: " + scoreX + " | O: " + scoreO;
-
-}
-
-// Restart Game
-
-restart.addEventListener("click", function() {
-
-    board = ["", "", "", "", "", "", "", "", ""];
-
-    currentPlayer = "X";
-
-    gameActive = true;
-
-    cells.forEach(cell => {
-
-        cell.textContent = "";
-
-        cell.disabled = false;
-
-    });
-
-    statusText.textContent = "Player X's Turn";
-
-});
-
-</script>
+<script src="script.js"></script>
 
 </body>
 </html>
